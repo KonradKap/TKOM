@@ -1,0 +1,6 @@
+struct Kappa {
+    int[3] keepo;
+    int(keepo[0])[keepo[1]] array;
+};
+
+Kappa[keepo[2]];

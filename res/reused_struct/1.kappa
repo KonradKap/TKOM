@@ -1,0 +1,5 @@
+struct Kappa {
+    int a;
+};
+
+Kappa;

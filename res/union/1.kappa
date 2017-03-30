@@ -1,0 +1,14 @@
+struct Kappa {
+    int value;
+    union(value) Keepo {
+        case(1){
+            int(16);
+        }
+        case(2){
+            int(32);
+        }
+        default{
+            int(64);
+        }
+    };
+};

@@ -1,0 +1,8 @@
+struct Kappa {
+    int(1);
+}; #This is a comment
+
+struct Keepo {
+    Kappa bool;
+    int(16) val;
+};

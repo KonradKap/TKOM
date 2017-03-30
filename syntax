@@ -1,0 +1,15 @@
+KONWENCJE LEKSYKALNE
+    ident       = litera { litera | cyfra }
+    intconst    = cyfra { cyfra }
+    comment     = #...\n
+
+SKŁADNIA
+    data        = ( structid | unionid | declaration ) { data }
+    intvalue    = intconst | ( ident { arrayid } )
+    arrayid     = '[' intvalue ']'
+    rangeid     = '(' intvalue ')'
+    type        = 'int' { rangeid } | ident
+    declaration = type { arrayid } { ident } ';'
+    structid    = 'struct' ident '{' data '}' ';'
+    unionid     = 'union' rangeid ident '{' caseblock { 'default' '{' data '}' } '}' ';'
+    caseblock   = 'case' rangeid '{' data '}' { caseblock }

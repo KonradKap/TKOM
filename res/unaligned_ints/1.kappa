@@ -1,0 +1,7 @@
+struct Kappa {
+    int(1) a;
+    int(2) b;
+    int(3) c;
+    int(4) d;
+    int(5) e;
+};
