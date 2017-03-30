@@ -1,11 +1,12 @@
 #!/bin/bash
 
+make &&
 for dir in res/*
 do
     datafile=(`find $dir -name "*.kappa"`)
     if [ ${#datafile[@]} -ne 1 ]
     then
-        echo "There are more than one .kappa file in $dir"
+        echo "There is more than one .kappa file in $dir"
         continue
     fi
     datafile=${datafile[0]}
