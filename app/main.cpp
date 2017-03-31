@@ -51,14 +51,14 @@ namespace {
 }
 
 int main(int argc, char **argv) {
-    //try {
+    try {
         //const auto [datafile, binfile] RIP
         const auto opts = parse_command_line(argc, argv);
         //std::apply(run_program, files); also rip
         run_program(opts);
-    //} catch (const std::exception& e) {
-    //    std::cout << e.what() << std::endl;
-    //    return -1;
-    //}
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
     return 0;
 }

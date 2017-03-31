@@ -1,0 +1,13 @@
+struct Kappa {
+    int a;
+    struct b {
+        int;
+    };
+};
+
+b[2];
+
+struct Keepo {
+    b;
+    int a;
+};

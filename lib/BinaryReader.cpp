@@ -45,5 +45,6 @@ void BinaryReader::setOffset(unsigned new_offset) {
 }
 
 void BinaryReader::setPosition(std::streampos new_position) {
+    input.clear();
     input.seekg(new_position);
 }

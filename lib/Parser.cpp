@@ -317,7 +317,7 @@ void Parser::checkForIdentifier(auto& data) {
 
     const auto identifier = scanner.getLastRead();
     if (wasDeclared(identifier))
-        signal_error(identifier + "was already used");
+        signal_error(identifier + " was already used");
 
     data = identifier;
 }
