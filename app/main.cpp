@@ -52,9 +52,9 @@ namespace {
 
 int main(int argc, char **argv) {
     try {
-        //const auto [datafile, binfile] RIP
         const auto opts = parse_command_line(argc, argv);
-        //std::apply(run_program, files); also rip
+        if (std::get<0>(opts).empty())
+            return 0;
         run_program(opts);
     } catch (const std::exception& e) {
         std::cout << e.what() << std::endl;

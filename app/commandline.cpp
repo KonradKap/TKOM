@@ -33,9 +33,11 @@ namespace {
 std::tuple<std::string, std::string, bool> parse_command_line(int argc, char **argv) {
     const auto description = make_description();
     const auto variables = make_variables(description, argc, argv);
-    return std::make_tuple(
-            variables["datafile"].as<std::string>(),
-            variables["binfile"].as<std::string>(),
-            variables["test"].as<bool>()
-        );
+    if (not variables.empty())
+        return std::make_tuple(
+                variables["datafile"].as<std::string>(),
+                variables["binfile"].as<std::string>(),
+                variables["test"].as<bool>()
+            );
+    return std::make_tuple("", "", false);
 }
