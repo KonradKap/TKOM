@@ -22,6 +22,7 @@ enum class Token {
     square_bracket_begin,
     square_bracket_end,
     semicolon,
+    dot,
     invalid,
     COUNT
 };

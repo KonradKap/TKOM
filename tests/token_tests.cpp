@@ -4,7 +4,7 @@
 
 #include "Scanner.h"
 
-BOOST_AUTO_TEST_SUITE(TokenTests)
+BOOST_AUTO_TEST_SUITE(TokenTests);
 
 BOOST_AUTO_TEST_CASE(tokenFromStringStruct) {
     const auto token = tokenFromString("struct");
@@ -41,4 +41,4 @@ BOOST_AUTO_TEST_CASE(toStringIdentifier) {
     BOOST_CHECK_EQUAL("identifier", token);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END();

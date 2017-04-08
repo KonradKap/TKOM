@@ -1,15 +1,36 @@
-KONWENCJE LEKSYKALNE
-    ident       = litera { litera | cyfra }
-    intconst    = cyfra { cyfra }
-    comment     = #...\n
+    <letter>                ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+    <digit>                 ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+    <character>             ::= <letter> | <digit> | "_"
+    <word>                  ::= "" | <character> <word>
+    <number>                ::= "" | <digit> <number>
+    <newline>               ::= "\n"
+    <word-set>              ::= "" | <word> <word-set>
+    <line-of-text>          ::= <word-set> <newline>
 
-SKŁADNIA
-    data        = ( structid | unionid | declaration ) { data }
-    intvalue    = intconst | ( ident { arrayid } )
-    arrayid     = '[' intvalue ']'
-    rangeid     = '(' intvalue ')'
-    type        = 'int' { rangeid } | ident
-    declaration = type { arrayid } { ident } ';'
-    structid    = 'struct' ident '{' data '}' ';'
-    unionid     = 'union' rangeid ident '{' caseblock { 'default' '{' data '}' } '}' ';'
-    caseblock   = 'case' rangeid '{' data '}' { caseblock }
+    <comment>               ::= "#" <line-of-text>
+    <id>                    ::= <letter> <word>
+    <opt-id>                ::= "" | <id>
+    <identifier>            ::= <id> | <identifier> "." <identifier> | <identifier> <opt-array-identifier>
+    <integer-value>         ::= <number> | <identifier>
+    <opt-identifier>        ::= "" | <identifier>
+    <range-identifier>      ::= "(" <integer-value> ")"
+    <opt-range-identifier>  ::= "" | <range-identifier>
+    <array-identifier>      ::= "[" <integer-value> "]"
+    <opt-array-identifier>  ::= "" | <array-identifier>
+
+    <data-declaration>      ::= <struct-declaration> <opt-data-declaration> | <union-declaration> <opt-data-declaration> | <type-declaration> <opt-data-declaration>
+    <opt-data-declaration>  ::= "" | <data-declaration> <opt-data-declaration>
+    <data-block>            ::= "{" <data-declaration> "}"
+
+    <struct-declaration>    ::= "struct" <id> <data-block> ";"
+
+    <union-declaration>     ::= "union" <range-identifier> <id> "{" <case-blocks> <opt-default-block> "}" ";"
+    <case-blocks>           ::= <case-block> <opt-case-blocks>
+    <case-block>            ::= "case" <range-identifier> <data-block>
+    <opt-case-blocks>       ::= "" | <case-block> <opt-case-blocks>
+    <opt-default-block>     ::= "" | <default-block>
+    <default-block>         ::= "default" <data-block>
+
+    <type-declaration>      ::= <int-declaration> | <type-reuse>
+    <int-declaration>       ::= "int" <opt-range-identifier> <opt-array-identifier> <opt-id> ";"
+    <type-reuse>            ::= <identifier> <opt-range-identifier> <opt-array-identifier> <opt-id> ";"

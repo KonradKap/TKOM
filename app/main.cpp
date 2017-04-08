@@ -7,6 +7,7 @@
 #include "commandline.h"
 #include "Parser.h"
 #include "Symbol.h"
+#include "print_container.h"
 
 namespace {
     void print_credentials() {
@@ -18,35 +19,35 @@ namespace {
     }
 
     void print_test(const Primitive& primitive) {
-        std::copy(primitive.value.begin(), primitive.value.end(), std::ostream_iterator<int64_t>(std::cout, " "));
+        print(primitive.value);
+        //std::copy(primitive.value.begin(), primitive.value.end(), std::ostream_iterator<int64_t>(std::cout, " "));
         std::cout << std::endl;
     }
 
     void print_primitive(const Primitive& primitive) {
         std::cout << "int " << "(" << primitive.size << ")[" << primitive.value.size() << "] " << primitive.identifier << " = {";
-        if (primitive.value.size() > 1)
-            std::copy(primitive.value.begin(), primitive.value.end()-1, std::ostream_iterator<int64_t>(std::cout, ","));
-        std::cout << primitive.value.back();
+        print(primitive.value);
         std::cout << "}" << std::endl;
     }
 
     void print_type(const Type& type) {
-        std::cout << type.identifier << ":\n";
+        std::cout << type.type_name << " " << type.identifier << ":\n";
     }
 
-    void print_results(std::vector<Type> results, bool test) {
+    void print_results(Parser& parser, bool test) {
         std::cout << std::endl;
         if (not test) {
             print_credentials();
-            for_each(results, 0, print_type, print_primitive);
+            parser.for_each(print_type, print_primitive);
         }
         else
-            for_each(results, 0, do_nothing, print_test);
+            parser.for_each(do_nothing, print_test);
     }
 
     void run_program(const auto& opts){
         Parser parser(std::get<0>(opts), std::get<1>(opts));
-        print_results(parser.parse(), std::get<2>(opts));
+        parser.parse();
+        print_results(parser, std::get<2>(opts));
     }
 }
 

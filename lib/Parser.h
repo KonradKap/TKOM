@@ -16,35 +16,32 @@ class Parser {
 
         const std::vector<Type>& parse();
 
+        void for_each(std::function<void (Type&)> on_type, std::function<void (Primitive&)> on_primitive);
+
     private:
         void readTokens(std::vector<Token>::const_iterator& begin, int count);
-
-        auto findTypeByIdentifier(const std::string& identifier) const;
-        auto findTypeByIdentifier(const std::string& identifier);
-        auto findPrimitiveByIdentifier(const std::string& identifier) const;
-
-        bool wasDeclared(const std::string& identifier) const;
-        bool hasValue(const std::string& identifier) const;
-        bool isDataStructure(const std::string& identifier) const;
+        void readTokens(std::vector<Token>::const_iterator& begin, int count, Scanner& input) const;
 
         void signal_error(std::string what) const;
-        void parse_data(int parent);
-        bool parse_structid(int parent);
-        bool parse_unionid(int parent);
-        bool parse_declaration(int owner);
-        void parse_reuse_of_id(int owner);
-        void parse_int_declaration(int owner);
-        void parse_caseblock(int value, int parent);
-        bool parse_case(int value, int parent);
+        void parse_data(Type& parent);
+        bool parse_structid(Type& parent);
+        bool parse_unionid(Type& parent);
+        bool parse_declaration(Type& parent);
+        void parse_reuse_of_id(Type& parent);
+        void parse_int_declaration(Type& parent);
+        void parse_caseblock(int decider, Type& parent);
+        bool parse_case(int decider, Type& parent);
 
-        std::pair<bool, int64_t> checkForIntegerId(const std::vector<Token>& brackets);
-        void checkForIdentifier(auto& data);
-        void expectDataBlock(int parent);
+        std::pair<bool, int64_t> checkForIntegerValue(const Type& parent, Scanner& input, const std::vector<Token>& brackets) const;
+        int64_t expectIntegerValue(const Type& parent, Scanner& input, const std::vector<Token>& brackets) const;
+        std::string checkForIdentifier(const Type& context);
+        int64_t readValue(const Type& parent, Scanner& input) const;
+        void expectDataBlock(Type& parent);
 
         Scanner scanner;
         BinaryReader binaryReader;
 
-        std::vector<Type> declared;
+        Type root;
 };
 
 class ParserException : public std::runtime_error {

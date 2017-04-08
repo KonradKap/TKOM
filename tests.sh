@@ -35,8 +35,8 @@ do
             if [ "${received_output[$i]}" != "${expected_output[$i]}" ]
             then
                 echo "Test `basename $dir` for `basename $binfile` failed"
-                echo "Got ${received_output[$i]}"
-                echo "Expected ${expected_output[$i]}"
+                echo "Got ${received_output[@]}"
+                echo "Expected ${expected_output[@]}"
                 echo "Mismatch at position $i"
                 passed=0
                 break

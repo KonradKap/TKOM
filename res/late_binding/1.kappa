@@ -11,6 +11,6 @@ struct Kappa {
             int;
         }
     };
-};        
+};
 
-Keepo;
+Kappa;

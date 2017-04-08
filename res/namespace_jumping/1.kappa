@@ -5,9 +5,9 @@ struct Kappa {
     };
 };
 
-b[2];
+Kappa.b[2];
 
 struct Keepo {
-    b;
+    Kappa.b;
     int a;
 };

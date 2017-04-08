@@ -41,6 +41,22 @@ Token Scanner::peekNextToken() {
     return token;
 }
 
+std::vector<std::string> Scanner::readDeepIdentifier() {
+    if (peekNextToken() != Token::identifier)
+        return {};
+
+    std::ignore = getNextToken();
+    std::vector<std::string> ret{ getLastRead() };
+    if (peekNextToken() == Token::dot)
+        do {
+            std::ignore = getNextToken();
+            if (getNextToken() != Token::identifier)
+                throw std::invalid_argument("Expected identifier, got : '" + getLastRead() + "'");
+            ret.push_back(getLastRead());
+        } while (peekNextToken() == Token::dot);
+    return ret;
+}
+
 void Scanner::readUntill(Token stop) {
     while(peekNextToken() != stop)
         getNextToken();

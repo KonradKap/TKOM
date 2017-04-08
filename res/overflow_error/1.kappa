@@ -1,0 +1,14 @@
+struct Kappa {
+    int a;
+};
+
+struct Keepo {
+    int a;
+};
+
+struct PogChamp {
+    Kappa[4] a;
+    Keepo[4] b;
+} champ;
+
+int[champ.a[5].a];

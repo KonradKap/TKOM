@@ -1,0 +1,8 @@
+struct Kappa {
+    int a;
+    int b;
+};
+
+Kappa[2] c;
+
+int[c[1].b] d;

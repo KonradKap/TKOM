@@ -19,6 +19,7 @@ Token tokenFromString(const std::string& input) {
         { "{", Token::curly_bracket_begin },
         { "}", Token::curly_bracket_end },
         { ";", Token::semicolon },
+        { ".", Token::dot },
     };
 
     const auto token = tokens.find(input);
@@ -39,42 +40,26 @@ bool isValidToken(const std::string& input) {
 }
 
 std::string toString(Token input) {
-    switch (input) {
-        case Token::identifier:
-            return "identifier";
-        case Token::integer_value:
-            return "integer_value";
-        case Token::comment:
-            return "#";
-        case Token::int_keyword:
-            return "int";
-        case Token::struct_keyword:
-            return "struct";
-        case Token::union_keyword:
-            return "union";
-        case Token::case_keyword:
-            return "case";
-        case Token::default_keyword:
-            return "default";
-        case Token::round_bracket_begin:
-            return "(";
-        case Token::round_bracket_end:
-            return ")";
-        case Token::square_bracket_begin:
-            return "[";
-        case Token::square_bracket_end:
-            return "]";
-        case Token::curly_bracket_begin:
-            return "{";
-        case Token::curly_bracket_end:
-            return "}";
-        case Token::semicolon:
-            return ";";
-        case Token::invalid:
-            return "invalid";
-        default:
-            throw InvalidTokenException("Token not found");
-    }
+    const static std::vector<std::string> data {
+        "identifier",
+        "integer",
+        "comment",
+        "int",
+        "struct",
+        "union",
+        "case",
+        "default",
+        "{",
+        "}",
+        "(",
+        ")",
+        "[",
+        "]",
+        ";",
+        ".",
+        "invalid",
+    };
+    return data[static_cast<decltype(data)::size_type>(input)];
 }
 
 std::vector<Token> squareBrackets() {

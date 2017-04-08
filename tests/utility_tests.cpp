@@ -4,7 +4,7 @@
 
 #include "utility.h"
 
-BOOST_AUTO_TEST_SUITE(UtilityTests)
+BOOST_AUTO_TEST_SUITE(UtilityTests);
 
 BOOST_AUTO_TEST_CASE(isValidIdentifierStartTest1) {
     BOOST_CHECK(isValidIdentifierStart('_'));
@@ -66,4 +66,4 @@ BOOST_AUTO_TEST_CASE(isNotNumericConstantTest2) {
     BOOST_CHECK(not isNumericConstant(""));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END();

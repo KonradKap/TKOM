@@ -18,6 +18,7 @@ class Scanner {
         int getColumnNumber() const;
 
         std::string getLastRead() const;
+        std::vector<std::string> readDeepIdentifier();
     private:
         bool isLongestMatch() const;
         void ignoreWhitespacesAndComments();

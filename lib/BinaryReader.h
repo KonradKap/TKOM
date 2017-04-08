@@ -2,10 +2,13 @@
 
 #include <fstream>
 #include <cstdint>
+#include <memory>
 
 class BinaryReader {
     public:
-        BinaryReader(const std::string& filename);
+        ///It is actually very important to pass istream opened with ios::binary
+        ///VERY important
+        BinaryReader(std::unique_ptr<std::istream> input);
 
         int64_t read(unsigned bit_count);
 
@@ -16,5 +19,5 @@ class BinaryReader {
         void setPosition(std::streampos new_position);
     private:
         unsigned offset;
-        std::ifstream input;
+        std::unique_ptr<std::istream> input;
 };

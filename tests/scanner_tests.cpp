@@ -6,8 +6,9 @@
 
 #include "Scanner.h"
 #include "Token.h"
+#include "print_log_value.h"
 
-BOOST_AUTO_TEST_SUITE(ScannerTests)
+BOOST_AUTO_TEST_SUITE(ScannerTests);
 
 BOOST_AUTO_TEST_CASE(ScanEmptyInput) {
     std::unique_ptr<std::stringstream> ss = std::make_unique<std::stringstream>();
@@ -115,4 +116,18 @@ BOOST_AUTO_TEST_CASE(ReadUntill) {
     BOOST_CHECK_EQUAL(Token::case_keyword, scanner.getNextToken());
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE(readDeepIdentifierTest1) {
+    std::unique_ptr<std::stringstream> ss = std::make_unique<std::stringstream>();
+    *ss << "asdf.fdsa.asdf";
+    Scanner scanner(std::move(ss));
+    BOOST_CHECK_EQUAL(std::vector<std::string>({"asdf", "fdsa", "asdf"}), scanner.readDeepIdentifier());
+}
+
+BOOST_AUTO_TEST_CASE(readDeepIdentifierTest2) {
+    std::unique_ptr<std::stringstream> ss = std::make_unique<std::stringstream>();
+    *ss << "asdf[";
+    Scanner scanner(std::move(ss));
+    BOOST_CHECK_EQUAL(std::vector<std::string>({"asdf"}), scanner.readDeepIdentifier());
+}
+
+BOOST_AUTO_TEST_SUITE_END();
