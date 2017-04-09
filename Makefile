@@ -5,7 +5,7 @@ CXX = c++
 CUR_DIR = $(shell pwd)
 CPPFLAGS = -std=c++17 -Wall -O0 -g
 INCLUDES =  -I"$(CUR_DIR)/app" -I"$(CUR_DIR)/lib" -I"$(CUR_DIR)/tests"
-LINKFLAGS = --std=c++17
+LINKFLAGS = -std=c++17
 APPLFLAGS = -lboost_program_options
 TESTLFLAGS =
 

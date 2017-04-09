@@ -14,12 +14,11 @@
 Parser::Parser(std::string datafilename, std::string binfilename) :
     scanner(std::make_unique<std::fstream>(datafilename, std::ios_base::in)),
     binaryReader(std::make_unique<std::fstream>(binfilename, std::ios_base::in | std::ios_base::binary)),
-    root({"root"}) {
+    root() {
 }
 
-const std::vector<Type>& Parser::parse() {
+void Parser::parse() {
     parse_data(root);
-    return {};
 }
 
 void Parser::signal_error(std::string what) const {
@@ -31,7 +30,7 @@ void Parser::readTokens(std::vector<Token>::const_iterator& begin, int count) {
 }
 
 void Parser::readTokens(std::vector<Token>::const_iterator& begin, int count, Scanner& input) const {
-    for (auto _ : boost::irange(0, count)) {
+    for (const auto _ : boost::irange(0, count)) {
         std::ignore = _;
         const auto token = input.getNextToken();
         if (token != *begin)
@@ -147,14 +146,18 @@ bool Parser::parse_case(int decider, Type& parent) {
     const auto value = expectIntegerValue(parent, scanner, roundBrackets());
     if (value == decider)
         expectDataBlock(parent);
-    else {
-        const auto saved = std::make_tuple(binaryReader.getOffset(), binaryReader.getPosition());
-        Type discard;
-        expectDataBlock(discard);
-        binaryReader.setOffset(std::get<0>(saved));
-        binaryReader.setPosition(std::get<1>(saved));
-    }
+    else
+        discard_datablock();
+
     return value == decider;
+}
+
+void Parser::discard_datablock() {
+    const auto saved = std::make_tuple(binaryReader.getOffset(), binaryReader.getPosition());
+    Type discard;
+    expectDataBlock(discard);
+    binaryReader.setOffset(std::get<0>(saved));
+    binaryReader.setPosition(std::get<1>(saved));
 }
 
 void Parser::parse_caseblock(int decider, Type& parent) {
@@ -171,11 +174,7 @@ void Parser::parse_caseblock(int decider, Type& parent) {
     }
     if (scanner.peekNextToken() == Token::default_keyword) {
         std::ignore = scanner.getNextToken();
-        const auto saved = std::make_tuple(binaryReader.getOffset(), binaryReader.getPosition());
-        Type discard;
-        expectDataBlock(discard);
-        binaryReader.setOffset(std::get<0>(saved));
-        binaryReader.setPosition(std::get<1>(saved));
+        discard_datablock();
     }
 
 }

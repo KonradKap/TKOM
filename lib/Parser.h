@@ -14,7 +14,7 @@ class Parser {
     public:
         Parser(std::string datafilename, std::string binfilename);
 
-        const std::vector<Type>& parse();
+        void parse();
 
         void for_each(std::function<void (Type&)> on_type, std::function<void (Primitive&)> on_primitive);
 
@@ -31,6 +31,7 @@ class Parser {
         void parse_int_declaration(Type& parent);
         void parse_caseblock(int decider, Type& parent);
         bool parse_case(int decider, Type& parent);
+        void discard_datablock();
 
         std::pair<bool, int64_t> checkForIntegerValue(const Type& parent, Scanner& input, const std::vector<Token>& brackets) const;
         int64_t expectIntegerValue(const Type& parent, Scanner& input, const std::vector<Token>& brackets) const;
