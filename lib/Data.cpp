@@ -25,7 +25,8 @@ bool Type::wasDeclared(const std::string& type_name) const {
 }
 
 bool Type::wasUsed(const std::string& identifier) const {
-    return findTypeByIdentifier({identifier}) != nullptr or findPrimitiveByIdentifier({identifier}) != nullptr;
+    return std::find_if(types.begin(), types.end(), identifier_equality(identifier)) != types.end()
+        and std::find_if(primitives.begin(), primitives.end(), identifier_equality(identifier)) != primitives.end();
 }
 
 const Type* Type::findTypeByIdentifier(const std::vector<std::string>& identifier) const {
@@ -76,8 +77,22 @@ Type* Type::next(unsigned count) {
     return const_cast<Type*>(static_cast<const Type*>(this)->next(count));
 }
 
-void Type::for_each(std::function<void (Type&)> on_type, std::function<void (Primitive&)> on_primitive) {
+const Type* Type::nextArray() const {
+    auto it = std::find(parent->types.begin(), parent->types.end(), *this);
+    if (it == parent->types.end())
+        throw std::runtime_error("Types' tree lost its integrity");
+    while (++it != parent->types.end() and it->type_name == type_name);
+    if (it == parent->types.end())
+        return nullptr;
 
+    return std::addressof(*it);
+}
+
+Type* Type::nextArray() {
+    return const_cast<Type*>(static_cast<const Type*>(this)->nextArray());
+}
+
+void Type::for_each(std::function<void (Type&)> on_type, std::function<void (Primitive&)> on_primitive) {
     auto prim = primitives.begin();
     auto type = types.begin();
     for (unsigned i = 0; i < primitives.size() + types.size(); ++i) {

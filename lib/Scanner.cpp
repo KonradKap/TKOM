@@ -106,3 +106,13 @@ std::string Scanner::getLastRead() const {
     return last_read;
 }
 
+Scanner::saved_pos Scanner::getPosition() {
+    return {line_number, column_number, input->tellg()};
+}
+
+void Scanner::setPosition(saved_pos new_position) {
+    input->clear();
+    input->seekg(new_position.streampos);
+    line_number = new_position.line_number;
+    column_number = new_position.column_number;
+}

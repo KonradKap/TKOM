@@ -26,13 +26,9 @@ void Parser::signal_error(std::string what) const {
 }
 
 void Parser::readTokens(std::vector<Token>::const_iterator& begin, int count) {
-    readTokens(begin, count, scanner);
-}
-
-void Parser::readTokens(std::vector<Token>::const_iterator& begin, int count, Scanner& input) const {
     for (const auto _ : boost::irange(0, count)) {
         std::ignore = _;
-        const auto token = input.getNextToken();
+        const auto token = scanner.getNextToken();
         if (token != *begin)
             signal_error("Expected '" + toString(*begin) + "'");
         ++begin;
@@ -40,8 +36,8 @@ void Parser::readTokens(std::vector<Token>::const_iterator& begin, int count, Sc
 }
 
 void Parser::parse_data(Type& parent) {
-    if (not parse_structid(parent)
-        and not parse_unionid(parent)
+    if (not parse_structid(parent, false)
+        and not parse_unionid(parent, false)
         and not parse_declaration(parent)) {
             std::ignore = scanner.getNextToken();
             signal_error("Expected 'struct', 'union', 'int' or identifier");
@@ -51,10 +47,11 @@ void Parser::parse_data(Type& parent) {
     }
 }
 
-bool Parser::parse_structid(Type& parent) {
+bool Parser::parse_structid(Type& parent, bool redeclaration) {
     if (scanner.peekNextToken() != Token::struct_keyword)
         return false;
 
+    const auto declaration = scanner.getPosition();
     const std::vector<Token> expectedOrder{
         Token::struct_keyword,
         Token::identifier,
@@ -64,9 +61,10 @@ bool Parser::parse_structid(Type& parent) {
     readTokens(it, 2);
 
     Type new_type;
+    new_type.declaration = declaration;
     new_type.type_name = scanner.getLastRead();
 
-    if (parent.wasDeclared(new_type.type_name))
+    if (not redeclaration and parent.wasDeclared(new_type.type_name))
         signal_error("Identifier: " + new_type.type_name + " was already used");
 
     new_type.parent = &parent;
@@ -74,21 +72,48 @@ bool Parser::parse_structid(Type& parent) {
 
     expectDataBlock(parent.types.back());
 
-    parent.types.back().identifier = checkForIdentifier(parent);
+    handle_redeclaration(redeclaration, parent, new_type);
 
     readTokens(it, 1);
 
     return true;
 }
 
-int64_t Parser::readValue(const Type& context, Scanner& input) const {
-    const auto identifier = input.readDeepIdentifier();
+void Parser::copy_type_n(int count, Type& parent, const Type& original) {
+    for (const auto _ : boost::irange(0, count)) {
+        std::ignore = _;
+        copy_type(original, parent);
+    }
+}
+
+void Parser::handle_redeclaration(bool redeclaration, Type& parent, const Type& original) {
+    if (redeclaration)
+        discard_array_and_identifier();
+    else
+        parse_array_and_identifier(parent, original);
+}
+
+void Parser::parse_array_and_identifier(Type& parent, const Type& original) {
+    const auto result = checkForIntegerValue(parent, squareBrackets());
+    parent.types.back().identifier = checkForIdentifier(parent);
+    copy_type_n(result.first ? result.second : 0, parent, original);
+}
+
+void Parser::discard_array_and_identifier() {
+    Type discarded;
+    std::ignore = checkForIntegerValue(discarded, squareBrackets());
+    if (scanner.peekNextToken() == Token::identifier)
+        std::ignore = scanner.getNextToken();
+}
+
+int64_t Parser::readValue(const Type& context) {
+    const auto identifier = scanner.readDeepIdentifier();
     auto* parent = context.findTypeByIdentifier(identifier.begin(), identifier.end() - 1);
     if (parent == nullptr)
         parent = &context;
     const auto* potential_primitive = parent->findPrimitiveByIdentifier({identifier.back()});
     if(potential_primitive) {
-        const auto result = checkForIntegerValue(context, input, squareBrackets());
+        const auto result = checkForIntegerValue(context, squareBrackets());
         if (not result.first and potential_primitive->value.size() > 1)
             signal_error("Expected index in square brackets");
         return potential_primitive->value[result.second];
@@ -96,42 +121,42 @@ int64_t Parser::readValue(const Type& context, Scanner& input) const {
         const auto* type = parent->findTypeByIdentifier({identifier.back()});
         if (not type)
             signal_error("Couldn't find " + identifier.back());
-        const auto index = expectIntegerValue(context, input, squareBrackets());
+        const auto index = expectIntegerValue(context, squareBrackets());
         const auto* actual_element = type->next(index);
         if (not actual_element)
             signal_error("Overflow error");
-        if (input.getNextToken() != Token::dot)
+        if (scanner.getNextToken() != Token::dot)
             signal_error("Expected '.'");
-        return readValue(*actual_element, input);
+        return readValue(*actual_element);
     }
 }
 
-std::pair<bool, int64_t> Parser::checkForIntegerValue(const Type& context, Scanner& input, const std::vector<Token>& brackets) const {
-    if (input.peekNextToken() != brackets.front())
+std::pair<bool, int64_t> Parser::checkForIntegerValue(const Type& context, const std::vector<Token>& brackets) {
+    if (scanner.peekNextToken() != brackets.front())
         return {false, 0};
 
     auto it = brackets.begin();
-    readTokens(it, 1, input);
+    readTokens(it, 1);
 
-    const auto token = input.peekNextToken();
+    const auto token = scanner.peekNextToken();
     if (token != Token::integer_value and token != Token::identifier)
         signal_error("Expected identifier or value");
     const auto data = token == Token::integer_value
-        ? input.getNextToken(), boost::lexical_cast<int64_t>(input.getLastRead())
-        : readValue(context, input);
-    readTokens(it, 1, input);
+        ? scanner.getNextToken(), boost::lexical_cast<int64_t>(scanner.getLastRead())
+        : readValue(context);
+    readTokens(it, 1);
     return {true, data};
 }
 
-int64_t Parser::expectIntegerValue(const Type& context, Scanner& input, const std::vector<Token>& brackets) const {
-    const auto result = checkForIntegerValue(context, input, brackets);
+int64_t Parser::expectIntegerValue(const Type& context, const std::vector<Token>& brackets) {
+    const auto result = checkForIntegerValue(context, brackets);
     if (not result.first)
         signal_error("Expected value");
     return result.second;
 }
 
 void Parser::expectDataBlock(Type& parent) {
-    const auto brackets = curlyBrackets() + Token::semicolon;
+    const auto brackets = curlyBrackets();
     auto it = brackets.begin();
     readTokens(it, 1);
     parse_data(parent);
@@ -143,7 +168,7 @@ bool Parser::parse_case(int decider, Type& parent) {
         signal_error("Expected 'case'");
     std::ignore = scanner.getNextToken();
 
-    const auto value = expectIntegerValue(parent, scanner, roundBrackets());
+    const auto value = expectIntegerValue(parent, roundBrackets());
     if (value == decider)
         expectDataBlock(parent);
     else
@@ -179,11 +204,12 @@ void Parser::parse_caseblock(int decider, Type& parent) {
 
 }
 
-bool Parser::parse_unionid(Type& parent) {
+bool Parser::parse_unionid(Type& parent, bool redeclaration) {
     const auto token = scanner.peekNextToken();
     if (token != Token::union_keyword)
         return false;
 
+    const auto declaration = scanner.getPosition();
     const std::vector<Token> expectedOrder{
         Token::union_keyword,
         Token::identifier,
@@ -194,20 +220,24 @@ bool Parser::parse_unionid(Type& parent) {
     auto it = expectedOrder.begin();
     readTokens(it, 1);
 
-    const auto decider = expectIntegerValue(parent, scanner, roundBrackets());
+    const auto decider = expectIntegerValue(parent, roundBrackets());
 
     readTokens(it, 1);
     const auto type_name = scanner.getLastRead();
+    if (not redeclaration and parent.wasDeclared(type_name))
+        signal_error("Identifier: " + type_name + " was already used");
+
     readTokens(it, 1);
 
     Type new_type;
     new_type.type_name = type_name;
     new_type.parent = &parent;
+    new_type.declaration = declaration;
     parent.types.push_back(new_type);
     parse_caseblock(decider, parent.types.back());
 
     readTokens(it, 1);
-    parent.types.back().identifier = checkForIdentifier(parent);
+    handle_redeclaration(redeclaration, parent, new_type);
     readTokens(it, 1);
 
     return true;
@@ -233,46 +263,45 @@ bool Parser::parse_declaration(Type& parent) {
 
 void Parser::parse_reuse_of_id(Type& parent) {
     const auto type_name = scanner.readDeepIdentifier();
-    const auto* result = parent.findTypeByName(type_name);
+    const auto* original = parent.findTypeByName(type_name);
 
-    if (not result)
+    if (not original or original->type_name == parent.type_name)
         signal_error(type_name.back() + " was not declared");
 
-    const auto check_result = checkForIntegerValue(parent, scanner, squareBrackets());
-    const auto count = check_result.first
-        ? check_result.second
+    const auto result = checkForIntegerValue(parent, squareBrackets());
+    const auto count = result.first
+        ? result.second
         : 1;
 
     const auto identifier = checkForIdentifier(parent);
-    const auto copy = *result;
-
+    auto copy = *original;
+    //copy.identifier = identifier;
+    //copy_type_n(count, copy, parent);
     for (const auto _ : boost::irange(0l, count)) {
         std::ignore = _;
-        auto new_type = copy;
-        new_type.identifier = identifier;
-        new_type.parent = &parent;
-        new_type.for_each(
-            [](Type& t) {},
-            [=](Primitive& p) {
-                for(auto& i : p.value)
-                    i = binaryReader.read(p.size);
-            }
-        );
-        parent.types.push_back(new_type);
+        copy_type(*original, parent);
+        parent.types.back().identifier = identifier;
     }
+}
+
+void Parser::copy_type(const Type& original, Type& parent) {
+    const auto saved = scanner.getPosition();
+    scanner.setPosition(original.declaration);
+    if (not parse_structid(parent, true))
+        parse_unionid(parent, true);
+    scanner.setPosition(saved);
 }
 
 void Parser::parse_int_declaration(Type& owner) {
     Primitive new_primitive;
-    const auto size_check = checkForIntegerValue(owner, scanner, roundBrackets());
+    const auto size_check = checkForIntegerValue(owner, roundBrackets());
     new_primitive.size = size_check.first
         ? size_check.second
-        : 32;
-    const auto length_check = checkForIntegerValue(owner, scanner, squareBrackets());
+        : 32l;
+    const auto length_check = checkForIntegerValue(owner, squareBrackets());
     new_primitive.value.resize(length_check.first
         ? length_check.second
         : 1);
-
     for (auto& val : new_primitive.value)
         val = binaryReader.read(new_primitive.size);
 

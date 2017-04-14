@@ -6,7 +6,6 @@
 
 #include "commandline.h"
 #include "Parser.h"
-#include "Symbol.h"
 #include "print_container.h"
 
 namespace {
@@ -15,11 +14,13 @@ namespace {
         std::cout << "Use at your own risk" << std::endl;
     }
 
-    void do_nothing(const Type&) {
+    void do_nothing(const Type& primitive) {
+        //std::cout << primitive.length_from << " "<< primitive.decider_from << std::endl;
     }
 
     void print_test(const Primitive& primitive) {
         print(primitive.value);
+        //std::cout << primitive.size_from << " " << primitive.length_from << std::endl;
         //std::copy(primitive.value.begin(), primitive.value.end(), std::ostream_iterator<int64_t>(std::cout, " "));
         std::cout << std::endl;
     }

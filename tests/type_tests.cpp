@@ -111,4 +111,20 @@ BOOST_AUTO_TEST_CASE(nextTest3) {
     BOOST_CHECK_EQUAL(static_cast<void*>(nullptr), root.types.front().next(1));
 }
 
+BOOST_AUTO_TEST_CASE(nextArrayTest1) {
+    Type root{"root"};
+    root.types.push_back({"child", "", &root});
+    root.types.push_back({"child", "", &root});
+    root.types.push_back({"child1", "", &root});
+    BOOST_CHECK_EQUAL(&root.types.back(), root.types.front().nextArray());
+}
+
+BOOST_AUTO_TEST_CASE(nextArrayTest2) {
+    Type root{"root"};
+    root.types.push_back({"child", "", &root});
+    root.types.push_back({"child", "", &root});
+    root.types.push_back({"child1", "", &root});
+    BOOST_CHECK_EQUAL(static_cast<void*>(nullptr), root.types.back().nextArray());
+}
+
 BOOST_AUTO_TEST_SUITE_END();

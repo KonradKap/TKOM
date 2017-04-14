@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <functional>
 
+#include "Scanner.h"
+
 struct Primitive {
     std::string identifier;
     unsigned size;
@@ -21,6 +23,8 @@ struct Type {
 
     std::list<Type> types = {};
     std::vector<Primitive> primitives = {};
+
+    Scanner::saved_pos declaration;
 
     const Type* findTypeByName(const std::vector<std::string>& type_name) const;
     Type* findTypeByName(const std::vector<std::string>& type_name);
@@ -39,6 +43,9 @@ struct Type {
 
     const Type* next(unsigned count) const;
     Type* next(unsigned count);
+
+    const Type* nextArray() const;
+    Type* nextArray();
 
     template<class Equality>
         const Type* findTypeBy(auto it_begin, auto it_end) const;
@@ -92,10 +99,6 @@ template<class Equality>
 
         return nullptr;
     }
-
-//inline std::ostream& operator<<(std::ostream& out, const Type& t) {
-//    return out << t.type_name << std::string{": "} << t.identifier;
-//}
 
 inline bool operator==(const Type& lhs, const Type& rhs) {
     return lhs.type_name == rhs.type_name

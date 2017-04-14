@@ -1,0 +1,9 @@
+struct Kappa {
+    int;
+};
+
+union(3) Kappa {
+    default {
+        int;
+    }
+};

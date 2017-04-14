@@ -7,6 +7,12 @@
 
 class Scanner {
     public:
+        struct saved_pos {
+            int line_number;
+            int column_number;
+            std::streampos streampos;
+        };
+
         explicit Scanner(std::unique_ptr<std::istream> input);
 
         Token getNextToken();
@@ -17,8 +23,12 @@ class Scanner {
         int getLineNumber() const;
         int getColumnNumber() const;
 
+        saved_pos getPosition();
+        void setPosition(saved_pos new_position);
+
         std::string getLastRead() const;
         std::vector<std::string> readDeepIdentifier();
+
     private:
         bool isLongestMatch() const;
         void ignoreWhitespacesAndComments();
