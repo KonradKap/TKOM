@@ -1,0 +1,12 @@
+union List {
+    case(0) {
+    };
+    default {
+        int value;
+        List(value) next;
+    };
+};
+
+List(1) list;
+
+#int(list.next.next.next.next);

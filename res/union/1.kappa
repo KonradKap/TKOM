@@ -1,14 +1,18 @@
-struct Kappa {
+struct(x) Kappa {
     int value;
-    union(value) Keepo {
+    union() Keepo {
         case(1){
-            int(16);
-        }
+            int(8);
+        };
         case(2){
-            int(32);
-        }
+            int(16);
+        };
         default{
-            int(64);
-        }
+            int(32);
+        };
     };
+    Keepo(x);
 };
+
+Kappa(3) a;
+Kappa(a.value);

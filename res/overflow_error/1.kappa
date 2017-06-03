@@ -1,14 +1,16 @@
-struct Kappa {
+struct() Kappa {
     int a;
 };
 
-struct Keepo {
+struct() Keepo {
     int a;
 };
 
-struct PogChamp {
-    Kappa[4] a;
-    Keepo[4] b;
-} champ;
+struct() PogChamp {
+    Kappa()[4] a;
+    Keepo()[4] b;
+};
+
+PogChamp() champ;
 
 int[champ.a[5].a];

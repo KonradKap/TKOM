@@ -1,17 +1,21 @@
-union(3) Kappa {
+union() Kappa {
     case(3) {
         int a;
-    }
-} a;
-
-union(a.a) Keepo {
-    default {
-        int a;
-    }
-} b;
-
-union(1) PogChamp {
-    default {
-        int a;
-    }
+    };
 };
+
+union() Keepo {
+    default {
+        int a;
+    };
+};
+
+union() PogChamp {
+    default {
+        int a;
+    };
+};
+
+Kappa(3) kappa;
+Keepo(kappa.a) keepo;
+PogChamp(keepo.a);

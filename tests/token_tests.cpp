@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "Scanner.h"
+#include "lexer/Scanner.h"
 
 BOOST_AUTO_TEST_SUITE(TokenTests);
 
@@ -39,6 +39,22 @@ BOOST_AUTO_TEST_CASE(toStringUnionId) {
 BOOST_AUTO_TEST_CASE(toStringIdentifier) {
     const auto token = toString(Token::identifier);
     BOOST_CHECK_EQUAL("identifier", token);
+}
+
+BOOST_AUTO_TEST_CASE(equalToAnyTest1) {
+    BOOST_CHECK(Token::identifier == Token::any);
+}
+
+BOOST_AUTO_TEST_CASE(equalTest1) {
+    BOOST_CHECK(Token::identifier != Token::struct_keyword);
+}
+
+BOOST_AUTO_TEST_CASE(isAnyTest1) {
+    BOOST_CHECK(isAny(Token::any));
+}
+
+BOOST_AUTO_TEST_CASE(isAnyTest2) {
+    BOOST_CHECK(not isAny(Token::identifier));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

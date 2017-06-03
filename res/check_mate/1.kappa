@@ -1,0 +1,9 @@
+struct(size) Row {
+    int[size] value;
+};
+
+struct(width, height) Matrix {
+    Row(width)[height] rows;
+};
+
+Matrix(3, 4) matrix;

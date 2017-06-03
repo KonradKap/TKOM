@@ -1,3 +1,5 @@
-struct Kappa {
+struct() Kappa {
     int(5)[4] array;
 };
+
+Kappa();

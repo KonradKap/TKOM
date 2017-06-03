@@ -3,24 +3,19 @@
 TARGET = kappalang
 CXX = c++
 CUR_DIR = $(shell pwd)
-CPPFLAGS = -std=c++17 -Wall -O0 -g
-INCLUDES =  -I"$(CUR_DIR)/app" -I"$(CUR_DIR)/lib" -I"$(CUR_DIR)/tests"
-LINKFLAGS = -std=c++17
-APPLFLAGS = -lboost_program_options
-TESTLFLAGS =
+CFLAGS = -std=c++17 -Wall -O0 -g
+INCLUDES =  -I"$(CUR_DIR)/src" -I"$(CUR_DIR)/tests"
+LINKFLAGS = -std=c++17 -lboost_program_options -lboost_filesystem -lboost_system -lstdc++
 
-app_SOURCES=$(shell find app/ -name *.cpp)
-app_OBJECTS=$(app_SOURCES:app/%.cpp=bin/app/%.o)
+app_SOURCES=$(shell find src/ -name *.cpp)
+app_OBJECTS=$(app_SOURCES:%.cpp=bin/%.o)
 
-lib_SOURCES=$(shell find lib/ -name *.cpp)
-lib_OBJECTS=$(lib_SOURCES:lib/%.cpp=bin/lib/%.o)
-
-tests_SOURCES=$(shell find tests/ -name *.cpp)
-tests_OBJECTS=$(tests_SOURCES:tests/%.cpp=bin/tests/%.o)
+tests_SOURCES=$(shell find tests/ src/ -name *.cpp -not -name main.cpp)
+tests_OBJECTS=$(tests_SOURCES:%.cpp=bin/%.o)
 tests_EXECUTABLE = bin/tests_bin
 
 #DEPS := $(shell find . -name *.d)
-DEPS := $(app_OBJECTS:.o=.d) $(lib_OBJECTS:.o=.d) $(tests_OBJECTS:.o=.d)
+DEPS := $(app_OBJECTS:.o=.d) $(tests_OBJECTS:.o=.d)
 
 all: directories $(TARGET) tests
 
@@ -30,15 +25,15 @@ directories:
 	@mkdir -p bin
 
 bin/%.d : %.cpp
-	@$(CXX) $(CPPFLAGS) -MM -MT '$(patsubst %.cpp,bin/%.o,$<)' $< -MF $@ $(INCLUDES)
+	@$(CXX) $(CFLAGS) -MM -MT '$(patsubst %.cpp,bin/%.o,$<)' $< -MF $@ $(INCLUDES)
 
 bin/%.o : %.cpp
 	@mkdir -p $(@D)
-	$(CXX) -c $(CPPFLAGS) -o $@ $< $(INCLUDES)
+	$(CXX) -c $(CFLAGS) -o $@ $< $(INCLUDES)
 
-$(tests_EXECUTABLE): $(tests_OBJECTS) $(lib_OBJECTS)
+$(tests_EXECUTABLE): $(tests_OBJECTS)
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(tests_OBJECTS) $(lib_OBJECTS) $(LINKFLAGS) $(TESTLFLAGS) $(INCLUDES)
+	$(CXX) -o $@ $^ $(LINKFLAGS) $(INCLUDES)
 
 tests: $(tests_EXECUTABLE)
 	@./$(tests_EXECUTABLE)
@@ -46,16 +41,15 @@ tests: $(tests_EXECUTABLE)
 run: $(TARGET)
 	@./$(TARGET)
 
-$(TARGET): $(app_OBJECTS) $(lib_OBJECTS)
+$(TARGET): $(app_OBJECTS)
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(app_OBJECTS) $(lib_OBJECTS) $(LINKFLAGS) $(APPLFLAGS) $(INCLUDES)
+	$(CXX) -o $@ $^ $(LINKFLAGS) $(INCLUDES)
 
 clean:
-	@find . -name "*.o" -delete -or -name "*.d" -delete
-	@find bin -type d -empty -delete
+	@find . -name "*.o" -delete -or -name "*.d" -delete || true
+	@find bin -type d -empty -delete || true
 
-cleaner:
-	@rm -rf bin
+cleaner: clean
+	@rm $(TARGET) $(tests_EXECUTABLE) || true
 
 .PHONY: clean cleaner tests directories run
-.SECONDARY: $(lib_OBJECTS) $(app_SHARED)

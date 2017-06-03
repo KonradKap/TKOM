@@ -1,5 +1,6 @@
-struct Kappa {
+struct() Kappa {
     int a;
 };
 
-Kappa;
+Kappa();
+Kappa();

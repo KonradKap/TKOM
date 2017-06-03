@@ -1,8 +1,10 @@
-struct Kappa {
+struct() Kappa {
     int(1);
 }; #This is a comment
 
-struct Keepo {
-    Kappa bool;
+struct() Keepo {
+    Kappa() bool;
     int(16) val;
 };
+
+Keepo();

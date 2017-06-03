@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "utility.h"
+#include "utility/utility.h"
 
 BOOST_AUTO_TEST_SUITE(UtilityTests);
 

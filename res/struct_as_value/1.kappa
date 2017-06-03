@@ -1,0 +1,6 @@
+struct Kappa {
+};
+
+Kappa a;
+
+int(a);

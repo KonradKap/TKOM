@@ -1,0 +1,13 @@
+struct Kappa {
+    struct Keepo {
+        struct PogChamp {
+            int a;
+        };
+        PogChamp a;
+    };
+    Keepo a;
+};
+
+Kappa a;
+
+int(a.a.a.a.a);

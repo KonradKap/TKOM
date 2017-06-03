@@ -1,0 +1,10 @@
+struct(x, y, z) Kappa {
+    struct(a, b) Keepo {
+        int[a] array;
+        int(1)[b] booleans;
+    };
+    Keepo(x, y)[z] keepo;
+};
+
+Kappa.Keepo(3, 4) a;
+Kappa(a.array[0], 8, a.array[a.array[1]]);

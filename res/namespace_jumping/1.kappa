@@ -1,13 +1,16 @@
-struct Kappa {
+struct() Kappa {
     int a;
-    struct b {
+    struct() B {
         int;
     };
 };
 
-Kappa.b[2];
+Kappa.B()[2];
 
-struct Keepo {
-    Kappa.b;
+struct() Keepo {
+    Kappa.B();
     int a;
 };
+
+Keepo();
+Kappa();

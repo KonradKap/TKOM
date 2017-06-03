@@ -1,0 +1,6 @@
+struct (a) Kappa {
+    int;
+};
+
+int asd;
+Kappa(asd[e.f].g);

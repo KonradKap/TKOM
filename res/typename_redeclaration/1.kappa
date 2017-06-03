@@ -1,8 +1,8 @@
-struct Kappa {
+struct() Kappa {
     int;
 };
 
-union(3) Kappa {
+union(x) Kappa {
     default {
         int;
     }

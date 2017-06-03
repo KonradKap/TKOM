@@ -1,0 +1,6 @@
+struct(x) Kappa {
+    int[x] array;
+};
+
+Kappa(2) kappa;
+Kappa(kappa.array[1]);

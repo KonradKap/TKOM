@@ -4,6 +4,8 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+IGNORED=(res/cant_be_empty res/recursive_type res/typename_redeclaration)
+
 make &&
 for dir in res/*
 do

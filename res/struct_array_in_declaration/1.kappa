@@ -1,3 +1,5 @@
-struct Struct {
+struct() Struct {
     int;
-}[3] kappa;
+};
+
+Struct()[3] kappa;

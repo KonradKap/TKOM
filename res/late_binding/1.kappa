@@ -1,16 +1,17 @@
-struct Kappa {
-    int decider;
-    union(decider) Keepo {
+struct(decider) Kappa {
+    union() Keepo {
         case(1) {
             int[2];
-        }
+        };
         case(2) {
             int[3];
-        }
+        };
         default {
             int;
-        }
+        };
     };
+    Keepo(decider);
 };
 
-Kappa;
+Kappa(3);
+Kappa.Keepo(1);

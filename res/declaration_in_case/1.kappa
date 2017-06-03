@@ -1,0 +1,18 @@
+union Kappa {
+    case(0) {
+        struct Keepo {
+            int;
+        };
+    };
+    case(1) {
+        Keepo();
+    };
+    default {
+        Kappa.Keepo();
+    };
+};
+
+Kappa.Keepo();
+Kappa(0);
+Kappa(1);
+Kappa(2);

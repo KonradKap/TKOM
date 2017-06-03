@@ -1,11 +1,11 @@
-struct a {
+struct() a {
     int[5];
 };
 
-#is technically equivalent to:
-
-struct b {
+struct() b {
     int;
 };
 
-b[4];
+a();
+#is technically equivalent to:
+b()[5];
