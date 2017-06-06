@@ -9,6 +9,8 @@
 
 #include "utility/CompilationError.h"
 
+using namespace std::literals::string_literals;
+
 Scanner::Scanner(std::unique_ptr<std::istream> input) :
     input(std::move(input)),
     line_number(0),
@@ -37,23 +39,48 @@ Token Scanner::getNextToken() {
     ignoreWhitespacesAndComments();
     if (endOfFile())
         throw std::istream::failure("Unexpected end of stream");
-    last_read = "";
-    while (input->good() and not (isValidToken(last_read) and isLongestMatch())) {
-        last_read += static_cast<char>(input->get());
-    }
+    readToken();
+    return tokenFromString(last_read);
+}
 
+void Scanner::readToken() {
+    last_read.clear();
+    last_read += static_cast<char>(input->get());
+    if (isdigit(last_read[0]))
+        readNumericConstant();
+    else if (isalpha(last_read[0]))
+        readIdentifier();
     column_number += last_read.length();
-    const auto token = tokenFromString(last_read);
+}
 
-    return token;
+void Scanner::readNumericConstant() {
+    read( [](char c) {return not isdigit(c);} );
+}
+
+void Scanner::readIdentifier() {
+    read( [](char c) {return not isdigit(c) and not isalpha(c);} );
+}
+
+void Scanner::read(const std::function<bool (char)>& invalid_condition) {
+    while(input) {
+        const auto next_char = static_cast<char>(input->peek());
+        if (isspace(next_char)
+                or isOneLetterToken(next_char)
+                or input->peek() == std::istream::traits_type::eof())
+            return;
+        last_read += static_cast<char>(input->get());
+        if (invalid_condition(next_char))
+            throw CompilationError("Unexpected '"s + last_read.back() + "'");
+    }
 }
 
 Token Scanner::peekNextToken() {
-    const ScopedSave _{*this};
+    const auto saved = getPosition();
     ignoreWhitespacesAndComments();
     const auto token = endOfFile()
-        ? Token::invalid
+        ? Token::eof
         : getNextToken();
+    setPosition(saved);
 
     return token;
 }
@@ -77,10 +104,6 @@ std::vector<std::string> Scanner::readDeepIdentifier() {
 void Scanner::readUntill(Token stop) {
     while(peekNextToken() != stop)
         getNextToken();
-}
-
-bool Scanner::isLongestMatch() const {
-    return isValidToken(last_read) and not isValidToken(last_read + static_cast<char>(input->peek()));
 }
 
 void Scanner::ignoreWhitespacesAndComments() {

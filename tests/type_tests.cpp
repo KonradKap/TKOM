@@ -2,7 +2,11 @@
 
 #include <sstream>
 
+#include "tests_utility.h"
 #include "parser/Struct.h"
+#include "parser/Integer.h"
+#include "filler/BinaryReader.h"
+#include "filler/DataArray.h"
 
 BOOST_AUTO_TEST_SUITE(BinaryReaderTests);
 
@@ -117,6 +121,53 @@ BOOST_AUTO_TEST_CASE(wasDeclaredTest2) {
 
     BOOST_CHECK(not child1->wasDeclared("root"));
     BOOST_CHECK(root->wasDeclared("root"));
+}
+
+BOOST_AUTO_TEST_CASE(applyTest1) {
+    auto int_ = std::make_shared<Integer>(std::weak_ptr<Type>());
+    std::unique_ptr<std::stringstream> ss =
+        std::make_unique<std::stringstream>(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+    *ss << "\x01";
+    BinaryReader reader{std::move(ss)};
+    DataArray array{};
+    array.applied_arguments.insert({{}, 8});
+
+    int_->apply(reader, array);
+    BOOST_CHECK(array.has_value);
+    BOOST_CHECK_EQUAL(1, array.value);
+}
+
+BOOST_AUTO_TEST_CASE(applyTest2) {
+    auto struct_ = std::make_shared<Struct>("root", std::weak_ptr<Type>());
+    auto int_ = std::make_shared<Integer>(std::weak_ptr<Type>());
+    struct_->declared.push_back({int_, {}, makeShallowList({"1"}), {makeShallowList({"8"})}});
+    std::unique_ptr<std::stringstream> ss =
+        std::make_unique<std::stringstream>(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+    *ss << "\x01\x02\x03\x04";
+    BinaryReader reader{std::move(ss)};
+    DataArray array{};
+
+    struct_->apply(reader, array);
+    BOOST_CHECK(array.children.front().has_value);
+    BOOST_CHECK_EQUAL(1, array.children.front().value);
+}
+
+BOOST_AUTO_TEST_CASE(applyTest3) {
+    auto struct_ = std::make_shared<Struct>("root", std::weak_ptr<Type>());
+    auto int_ = std::make_shared<Integer>(std::weak_ptr<Type>());
+    struct_->declared.push_back({int_, {}, makeShallowList({"1"}), {makeShallowList({"8"})}});
+    struct_->declared.push_back({int_, {}, makeShallowList({"1"}), {makeShallowList({"4"})}});
+    std::unique_ptr<std::stringstream> ss =
+        std::make_unique<std::stringstream>(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+    *ss << "\x01\x30\x03\x04";
+    BinaryReader reader{std::move(ss)};
+    DataArray array{};
+
+    struct_->apply(reader, array);
+    BOOST_CHECK(array.children.front().has_value);
+    BOOST_CHECK_EQUAL(1, array.children.front().value);
+    BOOST_CHECK(array.children.back().has_value);
+    BOOST_CHECK_EQUAL(3, array.children.back().value);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

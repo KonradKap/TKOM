@@ -2,6 +2,7 @@
 
 #include "lexer/Scanner.h"
 #include "lexer/Token.h"
+#include "utility/CompilationError.h"
 #include "print_log_value.h"
 #include "tests_utility.h"
 
@@ -30,7 +31,7 @@ BOOST_AUTO_TEST_CASE(ScanTwice) {
 
 BOOST_AUTO_TEST_CASE(ScanTokensNotSeparatedByWhitespace) {
     Scanner scanner = scannerFromString("int(3)");
-    std::ignore = scanner.getNextToken();
+    BOOST_CHECK_EQUAL(Token::int_keyword, scanner.getNextToken());
     BOOST_CHECK_EQUAL(Token::round_bracket_begin, scanner.getNextToken());
 }
 
@@ -46,9 +47,15 @@ BOOST_AUTO_TEST_CASE(EnsureLongestTokenRuleTest2) {
     BOOST_CHECK_EQUAL(8, scanner.getLastRead().length());
 }
 
+BOOST_AUTO_TEST_CASE(EnsureLongestTokenRuleTest3) {
+    Scanner scanner = scannerFromString("1234asdf");
+    BOOST_CHECK_THROW(scanner.getNextToken(), CompilationError);
+    BOOST_CHECK_EQUAL(5, scanner.getLastRead().length());
+}
+
 BOOST_AUTO_TEST_CASE(getLineAndColumnNumbersTest1) {
-    Scanner scanner = scannerFromString("asdfa  ");
-    std::ignore = scanner.getNextToken();
+    Scanner scanner = scannerFromString("asdfa   ");
+    BOOST_CHECK_EQUAL(Token::identifier, scanner.getNextToken());
     BOOST_CHECK_EQUAL(6, scanner.getColumnNumber());
     BOOST_CHECK_EQUAL(1, scanner.getLineNumber());
 }

@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "lexer/Scanner.h"
+#include "utility/CompilationError.h"
 
 BOOST_AUTO_TEST_SUITE(TokenTests);
 
@@ -22,13 +23,11 @@ BOOST_AUTO_TEST_CASE(tokenFromStringIntConst) {
 }
 
 BOOST_AUTO_TEST_CASE(tokenFromStringInvalid) {
-    const auto token = tokenFromString("123a4");
-    BOOST_CHECK_EQUAL(Token::invalid, token);
+    BOOST_CHECK_THROW(tokenFromString("123a4"), CompilationError);
 }
 
 BOOST_AUTO_TEST_CASE(tokenFromStringWithWhitespacesIsInvalid) {
-    const auto token = tokenFromString("1234 ");
-    BOOST_CHECK_EQUAL(Token::invalid, token);
+    BOOST_CHECK_THROW(tokenFromString("123a4"), CompilationError);
 }
 
 BOOST_AUTO_TEST_CASE(toStringUnionId) {

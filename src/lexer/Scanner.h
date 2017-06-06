@@ -3,6 +3,7 @@
 #include <istream>
 #include <memory>
 #include <vector>
+#include <functional>
 
 #include "Token.h"
 
@@ -44,11 +45,14 @@ class Scanner {
         saved_position getPosition();
         void setPosition(saved_position new_position);
 
-        bool isLongestMatch() const;
         void ignoreWhitespacesAndComments();
         void nextLine();
         void ignoreComments();
         void goToBeginning();
+        void readToken();
+        void readNumericConstant();
+        void readIdentifier();
+        void read(const std::function<bool (char)>& invalid_condition);
 
         std::unique_ptr<std::istream> input;
 

@@ -52,12 +52,4 @@ BOOST_AUTO_TEST_CASE(ReadZeroReturnsZero) {
     BOOST_CHECK_EQUAL(0, reader.read(0));
 }
 
-//BOOST_AUTO_TEST_CASE(FailingTest) {
-//    std::unique_ptr<std::stringstream> ss =
-//        std::make_unique<std::stringstream>(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-//    *ss << "\x0000007b"s;
-//    BinaryReader reader{std::move(ss)};
-//    BOOST_CHECK_EQUAL(123, reader.read(32));
-//}
-
 BOOST_AUTO_TEST_SUITE_END();

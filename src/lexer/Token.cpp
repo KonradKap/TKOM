@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "utility/utility.h"
+#include "utility/CompilationError.h"
 
 Token tokenFromString(const std::string& input) {
     static const std::map<std::string, Token> tokens {
@@ -34,11 +35,24 @@ Token tokenFromString(const std::string& input) {
     if (isNumericConstant(input))
         return Token::integer_value;
 
-    return Token::invalid;
+    throw CompilationError("Invalid token: '" + input + "'");
+    return Token::any;
 }
 
-bool isValidToken(const std::string& input) {
-    return tokenFromString(input) != Token::invalid;
+bool isOneLetterToken(char letter) {
+    static const std::map<char, Token> oneLetterTokens {
+        { '#' , Token::comment },
+        { '(', Token::round_bracket_begin },
+        { ')', Token::round_bracket_end },
+        { '[', Token::square_bracket_begin },
+        { ']', Token::square_bracket_end },
+        { '{', Token::curly_bracket_begin },
+        { '}', Token::curly_bracket_end },
+        { ';', Token::semicolon },
+        { '.', Token::dot },
+        { ',', Token::comma },
+    };
+    return oneLetterTokens.find(letter) != oneLetterTokens.end();
 }
 
 std::string toString(Token input) {
@@ -60,7 +74,7 @@ std::string toString(Token input) {
         ";",
         ".",
         ",",
-        "invalid",
+        "eof",
         "any"
     };
     return data[static_cast<decltype(data)::size_type>(input)];

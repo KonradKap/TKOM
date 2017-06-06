@@ -15,6 +15,8 @@
 #include "lexer/Scanner.h"
 #include "Struct.h"
 
+using namespace std::placeholders;
+
 Parser::Parser(Scanner& scanner) :
     scanner(scanner),
     root(std::make_shared<Struct>()),
@@ -49,6 +51,11 @@ bool Parser::checkToken(Token expected) {
         return false;
     std::ignore = scanner.getNextToken();
     return true;
+}
+
+bool Parser::checkToken(const std::vector<Token>& tokens) {
+    return std::any_of(tokens.begin(), tokens.end(),
+        [this] (Token token) { return checkToken(token); });
 }
 
 ReferenceList Parser::parseReferenceList(std::pair<Token, Token> brackets) {
@@ -90,7 +97,7 @@ void Parser::parseData(std::shared_ptr<Type> parent) {
         { Token::int_keyword, &Parser::parseIntegerUsage },
         { Token::identifier, &Parser::parseIdentifierUsage },
         { Token::curly_bracket_end, [](Parser*, std::shared_ptr<Type>){} },
-        { Token::invalid, [](Parser*, std::shared_ptr<Type>) { throw CompilationError("Unexpected end of file"); } },
+        { Token::eof, [](Parser*, std::shared_ptr<Type>) { throw CompilationError("Unexpected end of file"); } },
     };
     const auto token = scanner.peekNextToken();
     const auto function = parsers.find(token);
@@ -124,7 +131,7 @@ argument_list_t Parser::parseArgumentsList() {
             results.push_back(scanner.getLastRead());
         while (checkToken(Token::comma) and expectToken(Token::identifier));
     }
-    expectToken(Token::round_bracket_end);
+    checkListEnd();
     return results;
 }
 
@@ -204,12 +211,19 @@ void Parser::parseUsage(std::shared_ptr<Type> parent, std::shared_ptr<Type> sour
     parent->declared.push_back({source, identifier, count, arguments});
 }
 
+void Parser::checkListEnd() {
+    if (not checkToken(Token::round_bracket_end)) {
+        std::ignore = scanner.getNextToken();
+        throw CompilationError("Expected ')' or ',', got: '" + scanner.getLastRead() + "'");
+    }
+}
+
 std::vector<ReferenceList> Parser::checkForArguments(const std::vector<ReferenceList>& default_value) {
     if (checkToken(Token::round_bracket_begin)
             and scanner.peekNextToken() != Token::round_bracket_end) {
         std::vector<ReferenceList> ret;
         checkForArguments(ret, 0);
-        expectToken(Token::round_bracket_end);
+        checkListEnd();
         return ret;
     }
     std::ignore = checkToken(Token::round_bracket_end);

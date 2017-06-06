@@ -24,13 +24,14 @@ enum class Token {
     semicolon,
     dot,
     comma,
-    invalid,
+    eof,
     any,
     COUNT
 };
 
 Token tokenFromString(const std::string& input);
 bool isValidToken(const std::string& input);
+bool isOneLetterToken(char letter);
 std::string toString(Token input);
 
 std::pair<Token, Token> squareBrackets();

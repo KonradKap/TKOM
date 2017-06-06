@@ -21,6 +21,8 @@ class Parser {
 
         bool expectToken(Token expected);
         bool checkToken(Token expected);
+        bool checkToken(const std::vector<Token>& tokens);
+        void checkListEnd();
 
         void parseDataBlock(std::shared_ptr<Type> parent);
         void parseData(std::shared_ptr<Type> parent);

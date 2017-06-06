@@ -140,6 +140,18 @@ BOOST_AUTO_TEST_CASE(ParseArgumentsListTest5) {
     BOOST_CHECK_THROW(parser.parseArgumentsList(), CompilationError);
 }
 
+BOOST_AUTO_TEST_CASE(ParseArgumentsListTest6) {
+    auto scanner = scannerFromString("(a b)");
+    Parser parser{scanner};
+    BOOST_CHECK_THROW(parser.parseArgumentsList(), CompilationError);
+}
+
+BOOST_AUTO_TEST_CASE(ParseArgumentsListTest7) {
+    auto scanner = scannerFromString("(a % b)");
+    Parser parser{scanner};
+    BOOST_CHECK_THROW(parser.parseArgumentsList(), CompilationError);
+}
+
 BOOST_AUTO_TEST_CASE(ParseIntegerUsageTest1) {
     auto scanner = scannerFromString("int;");
     Parser parser{scanner};
